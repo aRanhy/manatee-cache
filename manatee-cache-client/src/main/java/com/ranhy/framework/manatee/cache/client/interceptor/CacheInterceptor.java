@@ -1,6 +1,7 @@
 package com.ranhy.framework.manatee.cache.client.interceptor;
 
 import com.ranhy.framework.manatee.cache.client.core.CacheAspectSupport;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -14,6 +15,7 @@ import java.lang.reflect.Method;
  * @description：代理类
  */
 @Data
+@AllArgsConstructor
 public class CacheInterceptor implements MethodInterceptor, Serializable {
 
 

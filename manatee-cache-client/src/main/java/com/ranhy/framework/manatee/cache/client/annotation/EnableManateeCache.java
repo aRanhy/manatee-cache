@@ -1,6 +1,9 @@
 
 package com.ranhy.framework.manatee.cache.client.annotation;
 
+import com.ranhy.framework.manatee.cache.client.CacheAutoConfiguration;
+import com.ranhy.framework.manatee.cache.client.properties.ManateeCacheProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -13,7 +16,8 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Documented
-@Import(value = {InkfishAutoConfiguration.class})
+@EnableConfigurationProperties(ManateeCacheProperties.class)
+@Import(value = {CacheAutoConfiguration.class})
 public @interface EnableManateeCache {
 
 }
