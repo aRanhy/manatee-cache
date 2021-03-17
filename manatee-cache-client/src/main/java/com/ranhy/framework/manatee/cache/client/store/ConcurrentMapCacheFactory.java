@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentMap;
  * @date       ： 2021/3/15 15:03
  * @description：缓存存储工厂
  */
+
 public class ConcurrentMapCacheFactory implements CacheFactory {
 
 
@@ -27,5 +28,9 @@ public class ConcurrentMapCacheFactory implements CacheFactory {
     @Override
     public Cache putIfAbsent(String name, Cache cache) {
         return cacheMap.putIfAbsent(name,cache);
+    }
+
+    public ConcurrentMap<String, Cache> getCacheMap(){
+        return this.cacheMap;
     }
 }

@@ -1,10 +1,13 @@
 package com.ranhy.framework.manatee.cache.client.core;
 
+import com.ranhy.framework.manatee.cache.client.constant.CacheStatusEnum;
 import com.ranhy.framework.manatee.cache.client.properties.ManateeCacheProperties;
+import com.ranhy.framework.manatee.cache.client.store.Cache;
 import com.ranhy.framework.manatee.cache.client.store.ConcurrentMapCacheFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -23,24 +26,31 @@ public class CacheExamineSync implements CacheSync{
     public void start() {
         cacheSyncThread =new Thread(()->{
 
-            log.info("Acl-ConfigSync-Thread 线程已正常启动");
+            ConcurrentMap<String, Cache>  cacheMap = cacheFactory.getCacheMap();
+
+            log.info("Cache-ExamineSync-Thread 线程已正常启动");
             while (!closed.get()) {
                 try {
-                    Thread.sleep(SECONDS.toMillis(properties.getCacheSyncInterval()) );
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                    Thread.sleep(SECONDS.toMillis(properties.getCacheExamineInterval()) );
 
-                try {
+                    cacheMap.values().forEach(cache -> {
+
+                        //删除状态时长超过指定时间未更新是，自动更新
+                        if(cache.getStatus().equals(CacheStatusEnum.DELETEING) && System.currentTimeMillis()- cache.getLastPurgeTime() > properties.getCacheResetInterval()){
+                            cache.setLastPurgeTime(System.currentTimeMillis());
+                            cache.clear();
+                            cache.updateStatus(CacheStatusEnum.EFFECTIVE);
+                        }
+                    });
 
                     //检测逻辑
                 }catch (Exception e){
-                    e.printStackTrace();
+                    log.error(e.getMessage());
                 }
 
             }
 
-        },"Acl-ConfigSync-Thread");
+        },"Cache-ExamineSync-Thread");
 
         cacheSyncThread.setDaemon(true);
         cacheSyncThread.start();
