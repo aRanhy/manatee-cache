@@ -18,7 +18,7 @@
 3、业务0侵入：本地缓存透明化，电商、互联网系统业务均可平滑接入。多存储的缓存化支持，满足多业务场景需求。<br> 
 
 ## 三、方案设计<br> 
-## redis多级缓存流程图<br> 
+## 缓存流程图<br> 
 ![](https://github.com/aRanhy/manatee-cache/blob/master/doc/redis缓存透明流程图.png)
 
 ## 整体架构图<br> 
@@ -42,7 +42,7 @@
 ![](https://github.com/aRanhy/manatee-cache/blob/master/doc/应用场景.png)
 omc不仅可以用作大促热商品、黑名单、热接口数据本地缓存，如直接使用omc-sdk的api还可以分布式限流作用，如集群接口、集群用户、爬虫用户等。<br>
 
-##五、mysql缓存<br>
+## 五、RDS缓存<br>
 ### mysql多级缓存流程图<br> 
 ![](https://github.com/aRanhy/manatee-cache/blob/master/doc/mysql缓存流程图.png)
 
