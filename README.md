@@ -56,9 +56,10 @@ omc不仅可以用作大促热商品、黑名单、热接口数据本地缓存�
 1.3、查询key如何load数据<br>
  不需热点识别：从DB查询数据结果后，直接把key和结果集result写入caffeine cache中。<br>
  需要热点识别：一开始caffeine cache中是不存在组装的key，需要将key上报给worker做热点识别，直到变热后由worker推送给客户端来缓存key（此时value为空或默认魔法值），二次查询的时候，识别到caffeine cache中存在组装的key但value为空，则从DB中查询数据结果后，再更新key的value为查询结果集合。<br>
+ 
 ### 2、select缓存更新机制<br>
 
-     DB数据更新后，jins会往mq发送变更记录，每条记录包含了表中变更行各字段的详细变更信息，如何利用行更变去刷新客户端的select缓存，这里使用反匹配手段（仅限单表缓存），反匹配就是看变更的行是否匹配select查询语句的where条件即可，这样就可以做到局部更新，而不像mybaits只有表变更就去刷新所有查询，这样降低了缓存的命中率。 where  user.sex = 男 and user2.id=2 <br>
+DB数据更新后，jins会往mq发送变更记录，每条记录包含了表中变更行各字段的详细变更信息，如何利用行更变去刷新客户端的select缓存，这里使用反匹配手段（仅限单表缓存），反匹配就是看变更的行是否匹配select查询语句的where条件即可，这样就可以做到局部更新，而不像mybaits只有表变更就去刷新所有查询，这样降低了缓存的命中率。 where  user.sex = 男 and user2.id=2 <br>
      例举插入数据如何刷新缓存：<br>
      步骤一：首先执行mapperId为"UserMapper.selectBySex" 的查询语句 select * from user where sex="男"；把结果缓存起来，并生成更新key（userMapper.selectBySex.男）。<br>
      步骤二：再插入一条数据 insert  user(name,sex) values("张三"，"男");<br>
