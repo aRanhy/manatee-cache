@@ -33,6 +33,7 @@
 ## 四、稳定性保障<br> 
 
 ![](https://github.com/aRanhy/manatee-cache/blob/master/doc/稳定性保障.png)
+
 1、热key数据异步批量上报，且通信模块与业务线程隔离互不影响，同时支持热key数量、容量双限，保障不会对业务内存造成OOM。其次即使omc组件异常也是对业务无感，最坏不能提供热点探测能力，应用从本地拿不到数据还会走远端redis获取，不影响业务正常使用，因此业务可放心接入。<br> 
 2、热key统计会在业务客户端先进行预计算，然后再推送到远端worker进行分布式聚合计算，worker推送和计算性能高峰可达16w/s(单节点8c16g)。<br> 
 3、worker集群无状态支持扩缩容，业务可根据redis访问频率，自由配置worker节点的规格和数量来支持高并发的热点数据计算。同时etcd配置中心也做了分区，多etcd集群来支持超大规模的应用接入。<br> 
@@ -40,6 +41,7 @@
 ## 五、应用场景<br>
 
 ![](https://github.com/aRanhy/manatee-cache/blob/master/doc/应用场景.png)
+
 omc不仅可以用作大促热商品、黑名单、热接口数据本地缓存，如直接使用omc-sdk的api还可以分布式限流作用，如集群接口、集群用户、爬虫用户等。<br>
 
 ## 五、RDS缓存<br>
@@ -55,6 +57,7 @@ omc不仅可以用作大促热商品、黑名单、热接口数据本地缓存�
  不需热点识别：从DB查询数据结果后，直接把key和结果集result写入caffeine cache中。<br>
  需要热点识别：一开始caffeine cache中是不存在组装的key，需要将key上报给worker做热点识别，直到变热后由worker推送给客户端来缓存key（此时value为空或默认魔法值），二次查询的时候，识别到caffeine cache中存在组装的key但value为空，则从DB中查询数据结果后，再更新key的value为查询结果集合。<br>
 ### 2、select缓存更新机制<br>
+
      DB数据更新后，jins会往mq发送变更记录，每条记录包含了表中变更行各字段的详细变更信息，如何利用行更变去刷新客户端的select缓存，这里使用反匹配手段（仅限单表缓存），反匹配就是看变更的行是否匹配select查询语句的where条件即可，这样就可以做到局部更新，而不像mybaits只有表变更就去刷新所有查询，这样降低了缓存的命中率。 where  user.sex = 男 and user2.id=2 <br>
      例举插入数据如何刷新缓存：<br>
      步骤一：首先执行mapperId为"UserMapper.selectBySex" 的查询语句 select * from user where sex="男"；把结果缓存起来，并生成更新key（userMapper.selectBySex.男）。<br>
